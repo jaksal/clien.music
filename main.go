@@ -12,7 +12,7 @@ import (
 
 var site = "https://m.clien.net/service/search/group/clien_all?&sk=title&sv=%s&po=%d"
 var origin = "https://m.clien.net"
-var search = []string{"music", "음악", "노래"}
+var search = []string{"music", "mv", "노래", "음악"}
 
 func main() {
 	var expireParam string
@@ -43,8 +43,9 @@ func main() {
 	var results []string
 	for _, se := range search {
 		for po := 0; po < limit; po++ {
-			log.Println("start parse list", fmt.Sprintf(site, url.QueryEscape(se), po))
-			data, err := getHTML(fmt.Sprintf(site, se, po))
+			u := fmt.Sprintf(site, url.QueryEscape(se), po)
+			log.Println("start parse list", u)
+			data, err := getHTML(u)
 			if err != nil {
 				log.Fatal(err)
 			}
