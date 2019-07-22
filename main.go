@@ -13,7 +13,7 @@ import (
 
 var site = "https://m.clien.net/service/search/group/clien_all?&sk=title&sv=%s&po=%d"
 var origin = "https://m.clien.net"
-var search = []string{"music", "mv", "노래", "음악"}
+var search = []string{"music", "mv", "노래", "음악", "뮤직"}
 
 func main() {
 	if err := InitYoutube(); err != nil {
@@ -21,6 +21,8 @@ func main() {
 	}
 
 	var expireParam string
+	var test bool
+	flag.BoolVar(&test, "t", false, "test mode")
 	flag.StringVar(&expireParam, "e", "today", "check expire date!. ex=today,yesterday, week, month")
 	flag.Parse()
 
@@ -32,13 +34,15 @@ func main() {
 		expire = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 		limit = 3
 	case "yesterday":
-		expire = time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, now.Location())
+		yesterday := now.AddDate(0, 0, -1)
+		expire = time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 0, 0, 0, 0, now.Location())
 		limit = 5
 	case "week":
-		expire = time.Date(now.Year(), now.Month(), now.Day()-int(now.Weekday()), 0, 0, 0, 0, now.Location())
+		lastweek := now.AddDate(0, 0, int(now.Weekday())*(-1))
+		expire = time.Date(lastweek.Year(), lastweek.Month(), lastweek.Day(), 0, 0, 0, 0, now.Location())
 		limit = 10
 	case "month":
-		expire = time.Date(now.Year(), now.Month(), 0, 0, 0, 0, 0, now.Location())
+		expire = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 		limit = 30
 	default:
 		log.Fatal("invalid expire", expire)
@@ -82,25 +86,30 @@ func main() {
 		}
 	}
 
-	// log.Println(results)
+	removeDuplicate(results)
 
-	// create new playlist
-	playlistTitle := fmt.Sprintf("clien.music %s", time.Now().Format("2006-01-02"))
-	playlistID, err := CreatePlaylist(playlistTitle)
-	if err != nil {
-		log.Fatal(err)
-	}
+	if test {
+		log.Println(strings.Join(results, "\n"))
+	} else {
 
-	// add youtube playlist..
-	for _, link := range results {
-		id := link[strings.LastIndex(link, "/")+1:]
-		// log.Println("add song", link, id, playlistID)
-		if err := AddSong(playlistID, id); err != nil {
-			log.Println("add song error", err, link, id, playlistID)
+		// create new playlist
+		playlistTitle := fmt.Sprintf("clien.music %s-%s", expire.Format("2006-01-02"), time.Now().Format("2006-01-02"))
+		playlistID, err := CreatePlaylist(playlistTitle)
+		if err != nil {
+			log.Fatal(err)
 		}
-	}
 
-	log.Printf("https://www.youtube.com/playlist?list=%s", playlistID)
+		// add youtube playlist..
+		for _, link := range results {
+			id := link[strings.LastIndex(link, "/")+1:]
+			// log.Println("add song", link, id, playlistID)
+			if err := AddSong(playlistID, id); err != nil {
+				log.Println("add song error", err, link, id, playlistID)
+			}
+		}
+
+		log.Printf("https://www.youtube.com/playlist?list=%s", playlistID)
+	}
 
 }
 
