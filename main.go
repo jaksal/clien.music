@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -15,6 +16,10 @@ var origin = "https://m.clien.net"
 var search = []string{"music", "mv", "노래", "음악"}
 
 func main() {
+	if err := InitYoutube(); err != nil {
+		log.Fatal(err)
+	}
+
 	var expireParam string
 	flag.StringVar(&expireParam, "e", "today", "check expire date!. ex=today,yesterday, week, month")
 	flag.Parse()
@@ -77,9 +82,25 @@ func main() {
 		}
 	}
 
-	log.Println(results)
+	// log.Println(results)
+
+	// create new playlist
+	playlistTitle := fmt.Sprintf("clien.music %s", time.Now().Format("2006-01-02"))
+	playlistID, err := CreatePlaylist(playlistTitle)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// add youtube playlist..
+	for _, link := range results {
+		id := link[strings.LastIndex(link, "/")+1:]
+		// log.Println("add song", link, id, playlistID)
+		if err := AddSong(playlistID, id); err != nil {
+			log.Println("add song error", err, link, id, playlistID)
+		}
+	}
+
+	log.Printf("https://www.youtube.com/playlist?list=%s", playlistID)
 
 }
 

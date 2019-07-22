@@ -2,9 +2,18 @@ package main
 
 import (
 	"io/ioutil"
+	"strings"
 	"testing"
 	"time"
 )
+
+func TestParseURL(t *testing.T) {
+	str := "https://www.youtube.com/embed/aKqPpRQA9pY"
+	id := str[strings.LastIndex(str, "/"):]
+	if id != "aKqPpRQA9pY" {
+		t.Error("parse mismatch", id, "aKqPpRQA9pY")
+	}
+}
 
 func TestParseList(t *testing.T) {
 	t.Log("start list parsing..")
