@@ -1,11 +1,8 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -16,20 +13,15 @@ var origin = "https://m.clien.net"
 var search = []string{"music", "mv", "노래", "음악", "뮤직"}
 
 func main() {
-	if err := InitYoutube(); err != nil {
+	conf, err := loadConfig("conf.json")
+	if err != nil {
 		log.Fatal(err)
 	}
-
-	var expireParam string
-	var test bool
-	flag.BoolVar(&test, "t", false, "test mode")
-	flag.StringVar(&expireParam, "e", "today", "check expire date!. ex=today,yesterday, week, month")
-	flag.Parse()
 
 	var expire time.Time
 	now := time.Now()
 	var limit int
-	switch expireParam {
+	switch conf.Expire {
 	case "today":
 		expire = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 		limit = 3
@@ -47,10 +39,10 @@ func main() {
 	default:
 		log.Fatal("invalid expire", expire)
 	}
-	log.Println("expire", expireParam, expire)
+	log.Println("expire", conf.Expire, expire)
 
 	var results []string
-	for _, se := range search {
+	for _, se := range conf.SearchTitles {
 		for po := 0; po < limit; po++ {
 			u := fmt.Sprintf(site, url.QueryEscape(se), po)
 			log.Println("start parse list", u)
@@ -88,9 +80,12 @@ func main() {
 
 	removeDuplicate(results)
 
-	if test {
+	if conf.TestMode {
 		log.Println(strings.Join(results, "\n"))
 	} else {
+		if err := InitYoutube(); err != nil {
+			log.Fatal(err)
+		}
 
 		// create new playlist
 		playlistTitle := fmt.Sprintf("clien.music %s-%s", expire.Format("2006-01-02"), time.Now().Format("2006-01-02"))
@@ -111,20 +106,4 @@ func main() {
 		log.Printf("https://www.youtube.com/playlist?list=%s", playlistID)
 	}
 
-}
-
-func getHTML(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	// handle the error if there is one
-	if err != nil {
-		return nil, err
-	}
-	// do this now so it won't be forgotten
-	defer resp.Body.Close()
-
-	html, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	return html, nil
 }
