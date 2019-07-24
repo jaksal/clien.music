@@ -67,7 +67,8 @@ func parseContents(r []byte) ([]string, error) {
 	var result []string
 	doc.Find(".video > iframe").Each(func(i int, s *goquery.Selection) {
 		if link, exist := s.Attr("src"); exist {
-			result = append(result, link)
+			temps := strings.Split(link, "?")
+			result = append(result, temps[0])
 		}
 	})
 	return result, nil

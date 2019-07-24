@@ -78,7 +78,7 @@ func main() {
 		}
 	}
 
-	removeDuplicate(results)
+	results = removeDuplicate(results)
 
 	if conf.TestMode {
 		log.Println(strings.Join(results, "\n"))
