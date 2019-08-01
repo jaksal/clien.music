@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -37,7 +38,15 @@ func main() {
 		expire = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 		limit = 30
 	default:
-		log.Fatal("invalid expire", expire)
+		ds := strings.Split(conf.Expire, "-")
+		if len(ds) != 2 {
+			log.Fatal("invalid expire", expire)
+		}
+		m, _ := strconv.Atoi(ds[0])
+		d, _ := strconv.Atoi(ds[1])
+		expire = time.Date(now.Year(), time.Month(m), d, 0, 0, 0, 0, now.Location())
+		limit = 20
+
 	}
 	log.Println("expire", conf.Expire, expire)
 
@@ -88,7 +97,7 @@ func main() {
 		}
 
 		// create new playlist
-		playlistTitle := fmt.Sprintf("clien.music %s-%s", expire.Format("2006-01-02"), time.Now().Format("2006-01-02"))
+		playlistTitle := fmt.Sprintf("clien.muzic %s~%s", expire.Format("2006-01-02"), time.Now().Format("2006-01-02"))
 		playlistID, err := CreatePlaylist(playlistTitle)
 		if err != nil {
 			log.Fatal(err)
