@@ -1,0 +1,6 @@
+{
+    "youtube_secret_file" : "client_secret.json",
+    "search_titles" : ["music", "mv","m/v", "노래", "음악", "뮤직","명곡"],
+    "test_mode" : false,
+    "expire" : "07-29"
+}
