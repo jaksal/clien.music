@@ -13,6 +13,7 @@ import (
 type Config struct {
 	YoutubeSecretFile string   `json:"youtube_secret_file"`
 	SearchTitles      []string `json:"search_titles"`
+	SearchUsers       []string `json:"search_users"`
 	Expire            string   `json:"expire"`
 	TestMode          bool     `json:"test_mode"`
 }
@@ -20,15 +21,17 @@ type Config struct {
 func loadConfig(file string) (*Config, error) {
 	var conf Config
 
-	var search string
-	flag.StringVar(&search, "s", "", "search string delemeter is ,")
+	var titles, users string
+	flag.StringVar(&titles, "s", "", "search title delemeter is ,")
+	flag.StringVar(&users, "u", "", "search user delemeter is ,")
 	flag.StringVar(&conf.YoutubeSecretFile, "secret", "client_secret.json", "google youtube client secret file")
 	flag.BoolVar(&conf.TestMode, "t", false, "test mode")
 	flag.StringVar(&conf.Expire, "e", "today", "expire date. today,yesterday,week,month")
 	flag.Parse()
 
-	if search != "" {
-		conf.SearchTitles = strings.Split(search, ",")
+	if titles != "" {
+		conf.SearchTitles = strings.Split(titles, ",")
+		conf.SearchUsers = strings.Split(users, ",")
 	} else {
 		// read config file
 		dat, err := ioutil.ReadFile(file)
@@ -40,7 +43,7 @@ func loadConfig(file string) (*Config, error) {
 		}
 	}
 
-	if len(conf.SearchTitles) == 0 || conf.Expire == "" {
+	if (len(conf.SearchTitles) == 0 && len(conf.SearchUsers) == 0) || conf.Expire == "" {
 		return nil, fmt.Errorf("invalid config %+v", conf)
 	}
 

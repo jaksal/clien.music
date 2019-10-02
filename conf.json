@@ -1,6 +1,7 @@
 {
     "youtube_secret_file" : "client_secret.json",
-    "search_titles" : ["music", "mv","m/v", "노래", "음악", "뮤직","명곡"],
+    "search_titles" : ["music","mv","m/v","음악","명곡"],
+    "search_users" : ["brumarbul"],
     "test_mode" : false,
-    "expire" : "07-29"
+    "expire" : "lastweek"
 }

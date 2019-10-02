@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var site = "https://m.clien.net/service/search/group/clien_all?&sk=title&sv=%s&po=%d"
+var site = "https://m.clien.net/service/search/group/clien_all?&sk=%s&sv=%s&po=%d"
 var origin = "https://m.clien.net"
 var search = []string{"music", "mv", "노래", "음악", "뮤직"}
 
@@ -31,7 +31,11 @@ func main() {
 		expire = time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 0, 0, 0, 0, now.Location())
 		limit = 5
 	case "week":
-		lastweek := now.AddDate(0, 0, int(now.Weekday())*(-1))
+		lastweek := now.AddDate(0, 0, int(now.Weekday())*(-1)+1)
+		expire = time.Date(lastweek.Year(), lastweek.Month(), lastweek.Day(), 0, 0, 0, 0, now.Location())
+		limit = 10
+	case "lastweek":
+		lastweek := now.AddDate(0, 0, int(now.Weekday())*(-1)-7+1)
 		expire = time.Date(lastweek.Year(), lastweek.Month(), lastweek.Day(), 0, 0, 0, 0, now.Location())
 		limit = 10
 	case "month":
@@ -51,39 +55,44 @@ func main() {
 	log.Println("expire", conf.Expire, expire)
 
 	var results []string
-	for _, se := range conf.SearchTitles {
+	for _, se := range conf.SearchUsers {
 		for po := 0; po < limit; po++ {
-			u := fmt.Sprintf(site, url.QueryEscape(se), po)
+			u := fmt.Sprintf(site, "id", url.QueryEscape(se), po)
 			log.Println("start parse list", u)
 			data, err := getHTML(u)
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
 
 			urls, ignore, err := parseList(data, expire)
 			if err != nil {
-				log.Fatal(err)
-			}
-
-			if urls == nil {
-				break
-			}
-
-			for _, url := range urls {
-				cdata, err := getHTML(origin + url)
-				if err != nil {
-					log.Fatal(err)
-				}
-				links, err := parseContents(cdata)
-				if err != nil {
-					log.Fatal(err)
-				}
-				results = append(results, links...)
+				panic(err)
 			}
 
 			if ignore {
 				break
 			}
+			results = append(results, urls...)
+		}
+	}
+	for _, se := range conf.SearchTitles {
+		for po := 0; po < limit; po++ {
+			u := fmt.Sprintf(site, "title", url.QueryEscape(se), po)
+			log.Println("start parse list", u)
+			data, err := getHTML(u)
+			if err != nil {
+				panic(err)
+			}
+
+			urls, ignore, err := parseList(data, expire)
+			if err != nil {
+				panic(err)
+			}
+
+			if ignore {
+				break
+			}
+			results = append(results, urls...)
 		}
 	}
 
