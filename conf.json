@@ -12,6 +12,6 @@
     "search_users": [
         "brumarbul"
     ],
-    "test_mode": false,
+    "test_mode": true,
     "expire": "lastweek"
 }

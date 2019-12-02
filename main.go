@@ -19,6 +19,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if !conf.TestMode {
+		if err := InitYoutube(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	var expire time.Time
 	now := time.Now()
 	var limit int
@@ -101,10 +107,6 @@ func main() {
 	if conf.TestMode {
 		log.Println(strings.Join(results, "\n"))
 	} else {
-		if err := InitYoutube(); err != nil {
-			log.Fatal(err)
-		}
-
 		// create new playlist
 		playlistTitle := fmt.Sprintf("clien.muzic %s~%s", expire.Format("2006-01-02"), time.Now().Format("2006-01-02"))
 		playlistID, err := CreatePlaylist(playlistTitle)
