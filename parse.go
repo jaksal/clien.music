@@ -38,9 +38,15 @@ func parseList(r []byte, expire time.Time) ([]string, bool, error) {
 			arr := strings.Split(t, "-")
 			m, _ := strconv.Atoi(arr[0])
 			d, _ := strconv.Atoi(arr[1])
-			// today
+
 			now := time.Now()
-			n := time.Date(now.Year(), time.Month(m), d, 0, 0, 1, 0, now.Location())
+
+			y := now.Year()
+			if now.Month() < time.Month(m) {
+				y = y - 1
+			}
+			// today
+			n := time.Date(y, time.Month(m), d, 0, 0, 1, 0, now.Location())
 			if !expire.Before(n) {
 				//log.Println("ignore expire date", t, n, expire)
 				ignore = true
