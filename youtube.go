@@ -14,10 +14,10 @@ import (
 var service *youtube.Service
 
 //InitYoutube init youtube .
-func InitYoutube() error {
+func InitYoutube(path string) error {
 	ctx := context.Background()
 
-	b, err := ioutil.ReadFile("client_secret.json")
+	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("Unable to read client secret file: %v", err)
 	}

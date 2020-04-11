@@ -2,11 +2,16 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var site = "https://m.clien.net/service/search/group/clien_all?&sk=%s&sv=%s&po=%d"
@@ -14,13 +19,23 @@ var origin = "https://m.clien.net"
 var search = []string{"music", "mv", "노래", "음악", "뮤직"}
 
 func main() {
-	conf, err := loadConfig("conf.json")
+	log.SetOutput(io.MultiWriter(&lumberjack.Logger{
+		Filename:   "clien.music.log",
+		MaxSize:    100, // megabytes
+		MaxBackups: 3,
+		MaxAge:     28, //days
+	}, os.Stdout))
+
+	cur, _ := os.Executable()
+	conf, err := loadConfig(filepath.Dir(cur) + "/conf.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	log.Println("start clien.music", conf)
+
 	if !conf.TestMode {
-		if err := InitYoutube(); err != nil {
+		if err := InitYoutube(filepath.Dir(cur) + "/client_secret.json"); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -79,7 +94,7 @@ func main() {
 				panic(err)
 			}
 
-			log.Println(urls, ignore)
+			// log.Println(urls, ignore)
 
 			if ignore {
 				break
