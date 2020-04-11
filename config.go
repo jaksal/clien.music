@@ -16,6 +16,10 @@ type Config struct {
 	SearchUsers       []string `json:"search_users"`
 	Expire            string   `json:"expire"`
 	TestMode          bool     `json:"test_mode"`
+	Auth              struct {
+		UserID string `json:"userid"`
+		Passwd string `json:"passwd"`
+	} `json:"auth"`
 }
 
 func loadConfig(file string) (*Config, error) {

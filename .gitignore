@@ -1,4 +1,6 @@
 *.json
-!conf.json
 clien.music
 clien.music.exe
+test.log
+go.sum
+conf.json

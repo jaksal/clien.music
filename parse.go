@@ -20,6 +20,8 @@ func parseList(r []byte, expire time.Time) ([]string, bool, error) {
 
 	var result []string
 	doc.Find(".list_item").Each(func(i int, s *goquery.Selection) {
+
+		// log.Println(s.Html())
 		ignore = false
 		t := strings.TrimSpace(s.Find(".list_time").Text())
 		if strings.Contains(t, ":") {
@@ -70,7 +72,7 @@ func parseList(r []byte, expire time.Time) ([]string, bool, error) {
 			if link, exist := subject.Attr("href"); exist && !strings.Contains(link, "rule") {
 				log.Println("parse content ...", t, strings.TrimSpace(subject.Text()))
 
-				cdata, err := getHTML(origin + link)
+				cdata, err := get(origin+link, nil, nil)
 				if err != nil {
 					panic(err)
 				}

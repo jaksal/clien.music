@@ -1,4 +1,8 @@
 {
+    "auth" : {
+        "userid" : "jaksal21",
+        "passwd" : "smell9411"
+    },
     "youtube_secret_file": "client_secret.json",
     "search_titles": [
         "music",

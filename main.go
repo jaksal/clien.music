@@ -60,12 +60,16 @@ func main() {
 	}
 	log.Println("expire", conf.Expire, expire)
 
+	if err := login(conf.Auth.UserID, conf.Auth.Passwd); err != nil {
+		log.Fatal(err)
+	}
+
 	var results []string
 	for _, se := range conf.SearchUsers {
 		for po := 0; po < limit; po++ {
 			u := fmt.Sprintf(site, "id", url.QueryEscape(se), po)
 			log.Println("start parse list", u)
-			data, err := getHTML(u)
+			data, err := get(u, nil, nil)
 			if err != nil {
 				panic(err)
 			}
@@ -74,6 +78,8 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
+
+			log.Println(urls, ignore)
 
 			if ignore {
 				break
@@ -85,7 +91,7 @@ func main() {
 		for po := 0; po < limit; po++ {
 			u := fmt.Sprintf(site, "title", url.QueryEscape(se), po)
 			log.Println("start parse list", u)
-			data, err := getHTML(u)
+			data, err := get(u, nil, nil)
 			if err != nil {
 				panic(err)
 			}
