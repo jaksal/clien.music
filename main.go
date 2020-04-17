@@ -38,6 +38,18 @@ func main() {
 		if err := InitYoutube(filepath.Dir(cur) + "/client_secret.json"); err != nil {
 			log.Fatal(err)
 		}
+
+		last, err := GetLast(filepath.Dir(cur) + "/last.json")
+		if err != nil {
+			log.Println("read last file error", err)
+		} else {
+			for _, link := range last.Links {
+				if err := AddSong(last.PlaylistID, link); err != nil {
+					log.Println("add song error", err, link, last.PlaylistID)
+				}
+			}
+			return
+		}
 	}
 
 	var expire time.Time
@@ -136,12 +148,25 @@ func main() {
 		}
 
 		// add youtube playlist..
+		var errLinks []string
 		for _, link := range results {
 			id := link[strings.LastIndex(link, "/")+1:]
 			// log.Println("add song", link, id, playlistID)
 			if err := AddSong(playlistID, id); err != nil {
 				log.Println("add song error", err, link, id, playlistID)
+				errLinks = append(errLinks, id)
 			}
+		}
+
+		if len(errLinks) > 0 {
+
+			if err := AddFile(filepath.Dir(cur)+"/last.json", &Last{
+				PlaylistID: playlistID,
+				Links:      errLinks,
+			}); err != nil {
+				log.Println("write last log fail", err)
+			}
+
 		}
 
 		log.Printf("https://www.youtube.com/playlist?list=%s", playlistID)
