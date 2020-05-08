@@ -34,18 +34,20 @@ func main() {
 
 	log.Println("start clien.music", conf)
 
-	if !conf.TestMode {
+	if conf.Mode != 1 {
 		if err := InitYoutube(filepath.Dir(cur) + "/client_secret.json"); err != nil {
 			log.Fatal(err)
 		}
 
-		last, err := GetLast(filepath.Dir(cur) + "/last.json")
-		if err != nil {
-			log.Println("read last file error", err)
-		} else {
-			for _, link := range last.Links {
-				if err := AddSong(last.PlaylistID, link); err != nil {
-					log.Println("add song error", err, link, last.PlaylistID)
+		if conf.Mode == 2 {
+			last, err := GetLast(filepath.Dir(cur) + "/last.json")
+			if err != nil {
+				log.Println("read last file error", err)
+			} else {
+				for _, link := range last.Links {
+					if err := AddSong(last.PlaylistID, link); err != nil {
+						log.Println("add song error", err, link, last.PlaylistID)
+					}
 				}
 			}
 			return
@@ -137,7 +139,7 @@ func main() {
 
 	results = removeDuplicate(results)
 
-	if conf.TestMode {
+	if conf.Mode == 1 {
 		log.Println(strings.Join(results, "\n"))
 	} else {
 		// create new playlist

@@ -1,7 +1,7 @@
 {
-    "auth" : {
-        "userid" : "",
-        "passwd" : ""
+    "auth": {
+        "userid": "jaksal21",
+        "passwd": "smell9411"
     },
     "youtube_secret_file": "client_secret.json",
     "search_titles": [
@@ -14,8 +14,9 @@
         "뮤직"
     ],
     "search_users": [
-        "brumarbul"
-    ],
-    "test_mode": true,
+        "brumarbul",
+        "pathos94",
+        "novellus"
+    ],    
     "expire": "lastweek"
 }
